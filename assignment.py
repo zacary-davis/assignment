@@ -42,6 +42,7 @@ class GridGame(tk.Tk):
                 # Check if the user's score is 5 or more
                 if self.calculate_score("U") >= 5:
                     self.display_winner("User")
+                    self.reset_board()
                     return
                 self.ai_move()
             else:
@@ -51,11 +52,19 @@ class GridGame(tk.Tk):
                 # Check if the AI's score is 5 or more
                 if self.calculate_score("A") >= 5:
                     self.display_winner("AI")
+                    self.reset_board()
                     return
 
             # Check if the board is full
             if self.is_full():
                 self.display_winner()
+                self.reset_board()
+    def reset_board(self):
+        for i in range(10):
+            for j in range(10):
+                self.board[i][j]["text"] = " "
+                self.board[i][j]["fg"] = "black"
+        self.turn = "user"
 
     def calculate_score(self, player):
         # Calculate the score for a given player by checking the surrounding cells
