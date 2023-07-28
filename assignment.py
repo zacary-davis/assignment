@@ -7,7 +7,7 @@ class GridGame(tk.Tk):
 
         # Set up the window
         self.title("Grid Game")
-        self.geometry("450x410")
+        self.geometry("450x430")
 
         # Center the window on the screen
         self.update_idletasks()
@@ -30,6 +30,22 @@ class GridGame(tk.Tk):
                 button = tk.Button(self, text=" ", command=lambda i=i, j=j: self.place_line(i, j), width=5, height=2)
                 button.grid(row=i, column=j)
                 self.board[i][j] = button
+ # Create the menu bar
+        menubar = tk.Menu(self)
+        self.config(menu=menubar)
+
+        # Create the "Difficulty" menu
+        difficulty_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Difficulty", menu=difficulty_menu)
+        difficulty_menu.add_command(label="Easy", command=lambda: self.set_difficulty("easy"))
+        difficulty_menu.add_command(label="Medium", command=lambda: self.set_difficulty("medium"))
+        difficulty_menu.add_command(label="Hard", command=lambda: self.set_difficulty("hard"))
+
+        # Default difficulty level is "Medium"
+        self.difficulty_level = "medium"
+
+    def set_difficulty(self, difficulty):
+        self.difficulty_level = difficulty
 
     def place_line(self, i, j):
         # Check if the clicked cell is empty
@@ -69,7 +85,7 @@ class GridGame(tk.Tk):
     def calculate_score(self, player):
         # Calculate the score for a given player by checking the surrounding cells
         score = 0
-        directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+        directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (-1, -1), (1, -1), (-1, 1), (1, 1)]
 
         for i in range(10):
             for j in range(10):
