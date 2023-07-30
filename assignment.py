@@ -7,18 +7,9 @@ class GridGame(tk.Tk):
 
         # Set up the window
         self.title("Grid Game")
-        self.geometry("450x430")
+        self.geometry("450x411")
 
-        # Center the window on the screen
-        self.update_idletasks()
-        screen_width = self.winfo_screenwidth()
-        screen_height = self.winfo_screenheight()
-        window_width = self.winfo_width()
-        window_height = self.winfo_height()
-        x_position = (screen_width - window_width) // 2
-        y_position = (screen_height - window_height) // 2
-        self.geometry(f"+{x_position}+{y_position}")
-
+        
         # Create the game board
         self.board = [[None for _ in range(10)] for _ in range(10)]
         self.turn = "user"
@@ -56,7 +47,7 @@ class GridGame(tk.Tk):
                 self.board[i][j]["fg"] = "blue"
                 self.turn = "ai"
                 # Check if the user's score is 5 or more
-                if self.calculate_score("U") >= 5:
+                if self.check_win(i, j, "U") >= 5:#self.calculate_score("U") >= 5:
                     self.display_winner("User")
                     self.reset_board()
                     return
@@ -66,7 +57,7 @@ class GridGame(tk.Tk):
                 self.board[i][j]["fg"] = "red"
                 self.turn = "user"
                 # Check if the AI's score is 5 or more
-                if self.calculate_score("A") >= 5:
+                if self.check_win(i, j, "A") >= 5:#self.calculate_score("A") >= 5:
                     self.display_winner("AI")
                     self.reset_board()
                     return
@@ -83,20 +74,30 @@ class GridGame(tk.Tk):
         self.turn = "user"
 
     def calculate_score(self, player):
-        # Calculate the score for a given player by checking the surrounding cells
-        score = 0
-        directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (-1, -1), (1, -1), (-1, 1), (1, 1)]
+        max_score = 0
+        for y in range(10):
+            for x in range(10):
+                if self.board[y][x]["text"] == player:
+                    max_score = max(max_score, self.check_win(y, x, player))
+        return max_score
+    
+    def check_win(self, i, j, player):
+        directions = [(0, 1), (1, 0), (1, 1), (1, -1)]
+        counts = []
+        for dx, dy in directions:
+            count = -1
+            count += self.count_continuous(i, j, dx, dy, player)
+            count += self.count_continuous(i, j, -dx, -dy, player)
+            counts.append(count)
+        return max(counts)
 
-        for i in range(10):
-            for j in range(10):
-                if self.board[i][j]["text"] == player:
-                    for dx, dy in directions:
-                        x, y = i + dx, j + dy
-                        # Check if the surrounding cell is within the board's boundaries and has the same player symbol
-                        if 0 <= x < 10 and 0 <= y < 10 and self.board[x][y]["text"] == player:
-                            score += 1
-                            break
-        return score
+    def count_continuous(self, i, j, dx, dy, player):
+        count = 0
+        while 0 <= i < 10 and 0 <= j < 10 and self.board[i][j].cget("text") == player:
+            i += dx
+            j += dy
+            count += 1
+        return count
 
     def ai_move(self):
         # Make a random move for the AI by selecting an empty cell
