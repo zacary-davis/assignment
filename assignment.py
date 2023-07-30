@@ -28,12 +28,11 @@ class GridGame(tk.Tk):
         # Create the "Difficulty" menu
         difficulty_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Difficulty", menu=difficulty_menu)
-        difficulty_menu.add_command(label="Easy", command=lambda: self.set_difficulty("easy"))
-        difficulty_menu.add_command(label="Medium", command=lambda: self.set_difficulty("medium"))
-        difficulty_menu.add_command(label="Hard", command=lambda: self.set_difficulty("hard"))
+        difficulty_menu.add_command(label="random", command=lambda: self.set_difficulty("random"))
+        difficulty_menu.add_command(label="hard", command=lambda: self.set_difficulty("hard"))
 
         # Default difficulty level is "Medium"
-        self.difficulty_level = "medium"
+        self.difficulty_level = "random"
 
     def set_difficulty(self, difficulty):
         self.difficulty_level = difficulty
@@ -51,7 +50,7 @@ class GridGame(tk.Tk):
                     self.display_winner("User")
                     self.reset_board()
                     return
-                self.ai_move()
+                self.ai_move((i, j))
             else:
                 self.board[i][j]["text"] = "A"
                 self.board[i][j]["fg"] = "red"
@@ -99,11 +98,18 @@ class GridGame(tk.Tk):
             count += 1
         return count
 
-    def ai_move(self):
+    def ai_move(self, last_move):
         # Make a random move for the AI by selecting an empty cell
         empty_cells = [(i, j) for i in range(10) for j in range(10) if self.board[i][j]["text"] == " "]
         if empty_cells:
-            i, j = random.choice(empty_cells)
+            if self.difficulty_level == "random":
+                # Select a random empty cell
+                i, j = random.choice(empty_cells)
+            else:
+                # Select a random empty cell near to the last player cell
+                player_cells = [(i, j) for (i,j) in empty_cells
+                                    if (i-last_move[0])**2 + (j-last_move[1])**2 <= 2]
+                i, j = random.choice(player_cells)
             self.place_line(i, j)
 
     def is_full(self):
